@@ -1,0 +1,44 @@
+{
+     "account":{
+          "name": "Hype Beast",
+          "email": "example@email.com",
+          "phone": "1234567890",
+          "address1": "439 N Fairfax Ave",
+          "address2" : "",
+          "address3" : "",
+          "zip" : "90036",
+          "city" : "Los Angeles",
+          "state" : "CA",
+          "country" : "USA",
+          "province":"",
+          "card_type": "visa",
+          "card_number": "1234567891011120",
+          "cvv" : "123",
+          "card_month" : "01",
+          "card_year" : "01",
+          "icheckbox_minimal" : true
+
+     },
+     "preferences":{
+          "manual_checkout" : true,
+          "autofill" : true,
+          "pause_on_cart" : false,
+          "autocheckout": false,
+          "remove_captcha" : true,
+          "chooseNextColor" : true,
+          "chooseNextSize": true,
+          "multiCart":true
+
+     },
+     "items":{
+          "keywords":["Tagless Tees","Cargo Short","Freaky Pin"],
+          "types":["Accessories","Shorts","Accessories"],
+          "colors":["Black", "Grey",""],
+          "sizes":[1, 2, -1]
+     },
+     "startBot":{
+          "autoStart":false,
+          "startTime:":"June 14, 2017 16:46:00"
+     }
+
+}

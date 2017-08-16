@@ -1,0 +1,26 @@
+{
+  "name": "electron-supreme-bot",
+  "version": "1.0.0",
+  "description": "An Electron Supreme Bot",
+  "main": "supremeBot.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/ncover21/Supreme-NY-Bot",
+  "keywords": [
+    "Electron",
+    "Supreme",
+    "ATC"
+  ],
+  "author": "Noah",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.5.0",
+    "chalk": "^2.1.0",
+    "electron": "^1.6.12",
+    "http": "0.0.0",
+    "nightmare": "^2.10.0",
+    "nightmare-wait-for-url": "0.0.2",
+    "request": "^2.81.0"
+  }
+}
