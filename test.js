@@ -1,38 +1,56 @@
 var request = require('request');
 var http = require('http');
 
-	function req(callback){
-        var lastCookie = {_supreme_sess: ""};
-
-        for (i = 0; i < 5; i++) {
-            var options = {
-                url: 'http://www.google.com/',
-                headers: {
-					'Cookie': lastCookie._supreme_sess,
-                    'Host':              'www.supremenewyork.com',
-                    'Accept':            'application/json',
-                    'Proxy-Connection':  'keep-alive',
-                    'X-Requested-With':  'XMLHttpRequest',
-                    'Accept-Encoding':   'gzip, deflate',
-                    'Accept-Language':   'en-us',
-                    'Content-Type':      'application/x-www-form-urlencoded',
-                    'Origin':            'http://www.supremenewyork.com',
-                    'Connection':        'keep-alive',
-                    'User-Agent':        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34',
-                    'Referer':           'http://www.supremenewyork.com/mobile'
-                }
-            };
-            request(options);
-            lastCookie = {_supreme_sess: res.headers}; 
-        }
-
+function atc(atcPayload){
+    var options = {
+        url: 'http://httpbin.org/post',
+        method: 'POST',
+        json: true,
+        body: atcPayload,
 
     }
-function atc(callback){
-	
+    request(options, function(error, response, body) {
+        if (error != null) {
+            console.log('error:', error);
+        }
+        if (response.statusCode != 200) {
+            console.log('statusCode:', response && response.statusCode);
+        } else {
+            var cookieJar = request.jar();
+            console.log(response.headers);
+            console.log("Cookie: ",cookieJar);
+            //checkout(response.headers, body['json']);
+        }
+    });
+}
+function checkout(session,payload){
+    var options = {
+        url: 'http://httpbin.org/post',
+        method: 'POST',
+        json: true,
+        body: payload,
+        headers: session
+
+    }
+    console.log("--------------------------");
+    console.log(session);
+    console.log("############");
+    console.log(payload);
+    
+    request(options, function(error, response, body) {
+        if (error != null) {
+            console.log('error:', error);
+        }
+        if (response.statusCode != 200) {
+            console.log('statusCode:', response && response.statusCode);
+        } else {
+            console.log(response.headers);
+        }
+    });
+    
+    
 }
 
 
-req(function(){
-	console.log("Test");
-});
+var testPayload = { 'style': '16249', 'size': '43386', 'qty': '1' };
+atc(testPayload);
