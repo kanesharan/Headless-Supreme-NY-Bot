@@ -1,5 +1,6 @@
 var request = require('request');
 var http = require('http');
+const demoStock = require('./product_list.json');
 
 module.exports = {
     getStock: function(callback) {

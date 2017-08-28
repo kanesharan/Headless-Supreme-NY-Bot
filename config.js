@@ -4,7 +4,7 @@ function Config(){
 	var config = undefined;
 
 	try {
-		config = require('./config.json');
+		config = require('./captchaConfig.json');
 	} catch (error){
 		console.log('Unable to find config.json. Please create a new config from the example.');
 		process.exit(1);

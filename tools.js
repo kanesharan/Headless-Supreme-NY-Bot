@@ -43,7 +43,7 @@ module.exports = {
                 if (evalNames.length == 0) {
                     evalNames.push(matchedName[0]);
                 }
-                EvaluatedIDs[evalNames[0][0] + "_" + i] = evalNames[0][2];
+                EvaluatedIDs[evalNames[0][0]] = evalNames[0][2];
                 if (debug) {
                     console.log(EvaluatedIDs);
                 }
@@ -52,13 +52,13 @@ module.exports = {
                 if (debug) {
                     console.log("Found 1 moving on...");
                 }
-                EvaluatedIDs[matchedName[0][0] + "_" + i] = matchedName[0][2];
+                EvaluatedIDs[matchedName[0][0]] = matchedName[0][2];
                 if (debug) {
                     console.log(EvaluatedIDs);
                 }
             }
             if (matchedName.length == 0) {
-                EvaluatedIDs['N/A'] = -1;
+                //EvaluatedIDs['N/A'] = -1;
                 if (debug) {
                     console.log("None Found... Exiting");
                 }
@@ -66,6 +66,29 @@ module.exports = {
         }
         EvaluatedDict = EvaluatedIDs;
         fn(EvaluatedDict);
+    },
+    getOneProduct: function(stockList,item){
+        var found = false;
+
+        for(var key in stockList['products_and_categories'][item['type']]){
+            var name = stockList['products_and_categories'][item['type']][key]['name'].toLowerCase();
+                
+            //console.log(name);
+            var keywords = item['keyword'].split(" ");
+            //console.log("\t" + keywords);
+            var subFound = true;
+            for(var i = 0; i < keywords.length; i++){
+                if(name.indexOf(keywords[i].toLowerCase()) == -1){
+                    subFound = false;
+                }
+            }
+            if(subFound){
+                if(debug){console.log( name + " : " + stockList['products_and_categories'][item['type']][key]['id']);}
+                return [stockList['products_and_categories'][item['type']][key]['id'],name ];
+            }
+
+        }
+        return [-1,""];
     },
     getProductInfo: function(origData,data, fn){
         var productInfo = [];
