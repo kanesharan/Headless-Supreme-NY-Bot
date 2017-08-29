@@ -5,6 +5,7 @@ const calls = require('./jsonCalls.js');
 var request = require('request');
 var http = require('http');
 var token = require('./main.js');
+var t = require("tough-cookie");
 
 const debug = true;
 const reset = "\x1b[0m";
@@ -20,12 +21,18 @@ module.exports = {
             console.log("NEW: " + out.toString());
             if( out[0] !== -1 && out[1] !== -1){
                 payload = {"style": out[0], "size": out[1], "qty": 1};
-                atc(atcURL,payload, function(session){
+                suprerATC(accountInfo,token,out[1],atcURL,payload, function(session){
+                    /*
+                    var temp = session['set-cookie'][3];
+                    var setCookie = session['set-cookie'];
+                    var supSession = temp.substring(0,temp.indexOf(';'));
+                    console.log(supSession);
                     console.log();
-                    console.log("Session is maintained....");
+                    console.log("Session is maintained....Waiting " + config['preferences']['checkoutTimer'] + " seconds");
                     setTimeout(function(){
-                        realCheckout(color,session['set-cookie'], token, out[1], accountInfo );
+                        realCheckout(color,supSession, token, out[1], accountInfo );
                     }, config['preferences']['checkoutTimer']);
+                    */
                 });
             }
 
@@ -61,24 +68,23 @@ function realCheckout(color, session, selectedCaptchaToken, cookie, accountInfo)
         "g-recaptcha-response":     selectedCaptchaToken, 
         "is_from_ios_native":       "1"
     };
-    var contentLength = parseInt(JSON.stringify(checkoutPayload).length);
     var options = {
         url: 'https://www.supremenewyork.com/checkout.json',
         method: 'POST',
         json: true,
         body: JSON.stringify(checkoutPayload),
         headers: {
-            'Accept':            'application/json',
-            'Accept-Encoding':   'gzip, deflate, br',
-            'Accept-Language':   'en-US,en;q=0.8',
-            'Connection':        'keep-alive',
-            'Content-Length':    contentLength,
-            'Content-Type':      'application/x-www-form-urlencoded',
-            'Cookie':             session,
             'Host':              'www.supremenewyork.com',
+            'Accept':            'application/json',
+            'Proxy-Connection':  'keep-alive',
+            'X-Requested-With':  'XMLHttpRequest',
+            'Accept-Encoding':   'gzip, deflate',
+            'Accept-Language':   'en-us',
+            'Content-Type':      'application/x-www-form-urlencoded',
             'Origin':            'http://www.supremenewyork.com',
-            'Referer':           'http://www.supremenewyork.com/mobile',
-            'User-Agent':        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34'
+            'Connection':        'keep-alive',
+            'User-Agent':        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34',
+            'Referer':           'http://www.supremenewyork.com/mobile'
         }
     };
     request(options, function(error, response, body) {
@@ -102,6 +108,7 @@ function getStyle(body,itemInfo,color){
     var ifFound = false;
     for(var key in body['styles']){
         var color = body['styles'][key]['name'].toLowerCase();
+        //console.log(itemInfo['color'].trim().toLowerCase())
         if(color.indexOf(itemInfo['color'].trim().toLowerCase()) != -1 || itemInfo['color'] == ""){
             if(itemInfo['color'] == ""){
                 colorID = body['styles'][0]['id'];
@@ -176,8 +183,10 @@ function getItemData(dataURL, callback){
         }
     });
 }
-function atc(atcUrl,atcPayload, fn){
-    var cookieJar;
+function atc(accountInfo,selectedCaptchaToken,cookie, atcUrl,atcPayload, fn){
+    var request = require('request');
+    var j = request.jar();
+    var request = request.defaults({ jar : j });
 	var options = {
         url: atcUrl,
         method: 'POST',
@@ -207,13 +216,121 @@ function atc(atcUrl,atcPayload, fn){
 			console.log('statusCode:', response && response.statusCode);
 		} else {
             console.log("Sucessfully Added to Cart... Checking out");
-            fn(response.headers);
+            var checkoutPayload = {
+                "store_credit_id":          "",   
+                "from_mobile":              "1",
+                "cookie-sub":               "%7B%22" + cookie + "%22%3A1%7D",
+                "same_as_billing_address":  "1",
+                "order[billing_name]":      accountInfo["name"],
+                "order[email]":             accountInfo["email"],
+                "order[tel]":               accountInfo["phone"],
+                "order[billing_address]":   accountInfo["address1"],
+                "order[billing_address_2]": accountInfo["address2"],
+                "order[billing_zip]":       accountInfo["zip"],
+                "order[billing_city]":      accountInfo["city"],
+                "order[billing_state]":     accountInfo["state"],
+                "order[billing_country]":   accountInfo["country"],
+                "credit_card[cnb]":         accountInfo["card_number"],
+                "credit_card[month]":       accountInfo["card_month"],
+                "credit_card[year]":        accountInfo["card_year"],
+                "credit_card[vval]":        accountInfo["cvv"],
+                "order[terms]":             "0",
+                "order[terms]":             "1",
+                "g-recaptcha-response":     selectedCaptchaToken, 
+                "is_from_ios_native":       "1"
+            };
+            request({
+                url: 'https://www.supremenewyork.com/checkout.json',
+                method:"POST",
+                json: true,
+                body: JSON.stringify(checkoutPayload)
+            }, function(error, response, body){
+                if (error != null) {
+                    console.log('error:', error);
+                    console.log(body);
+                }
+                if (response.statusCode != 200) {
+                    console.log('statusCode:', response && response.statusCode);
+                    console.log(body);
+                } else {
+                    console.log("[!] Sucessfully Checkout!!!!!");
+                    console.log(body);
+                }
+            });
+
+
         }
     });
+
 }
-function byteCount(s) {
-    return encodeURI(s).split(/%..|./).length - 1;
+function suprerATC(accountInfo,selectedCaptchaToken,cookie, atcUrl,atcPayload, fn){
+    var request = require('superagent');
+    var checkoutPayload = {
+        "store_credit_id":          "",   
+        "from_mobile":              "1",
+        "cookie-sub":               "%7B%22" + cookie + "%22%3A1%7D",
+        "same_as_billing_address":  "1",
+        "order[billing_name]":      accountInfo["name"],
+        "order[email]":             accountInfo["email"],
+        "order[tel]":               accountInfo["phone"],
+        "order[billing_address]":   accountInfo["address1"],
+        "order[billing_address_2]": accountInfo["address2"],
+        "order[billing_zip]":       accountInfo["zip"],
+        "order[billing_city]":      accountInfo["city"],
+        "order[billing_state]":     accountInfo["state"],
+        "order[billing_country]":   accountInfo["country"],
+        "credit_card[cnb]":         accountInfo["card_number"],
+        "credit_card[month]":       accountInfo["card_month"],
+        "credit_card[year]":        accountInfo["card_year"],
+        "credit_card[vval]":        accountInfo["cvv"],
+        "order[terms]":             "0",
+        "order[terms]":             "1",
+        "g-recaptcha-response":     selectedCaptchaToken, 
+        "is_from_ios_native":       "1"
+    };
+
+
+    request
+        .post(atcUrl)
+        .set('Host', 'www.supremenewyork.com')
+        .set('Accept', 'application/json')
+        .set('Proxy-Connection','keep-alive')
+        .set('X-Requested-With','XMLHttpRequest')
+        .set('Accept-Encoding','gzip, deflate')
+        .set('Accept-Language','en-us')
+        .set('Content-Type','application/x-www-form-urlencoded')
+        .set('Origin','http://www.supremenewyork.com')
+        .set('Accept-Language','en-us')
+        .set('Connection','keep-alive')
+        .set('Referer','http://www.supremenewyork.com/mobile')
+        .set('User-Agent','Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34')
+        .send(JSON.stringify(atcPayload))
+        .end(function(err, res){
+            if(err){
+                console.log("Errors: " + err);
+            }
+            else{
+                console.log("Session is maintained....Waiting " + config['preferences']['checkoutTimer'] + " seconds");
+                setTimeout(function(){
+                    request
+                        .post('https://www.supremenewyork.com/checkout.json')
+                        .send(JSON.stringify(checkoutPayload))
+                        .end(function(err, res){
+                            console.log("Errors: " + err);
+                            console.log("RES: ");
+                            console.log(res);
+                        });
+
+                }, config['preferences']['checkoutTimer']);
+            }
+        });
+    
+    
+
+    fn(cookie);
 }
+
+
 
 
 
