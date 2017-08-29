@@ -1,6 +1,6 @@
 var request = require('request');
 var http = require('http');
-const demoStock = require('./product_list.json');
+//const demoStock = require('./product_list.json');
 
 module.exports = {
     getStock: function(callback) {
@@ -18,7 +18,7 @@ module.exports = {
                 'X-Requested-With': 'XMLHttpRequest'
             }
 
-        }
+        };
         request(options, function(error, response, body) {
             if (error != null) {
                 console.log('error:', error);

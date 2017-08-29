@@ -27,7 +27,8 @@
           "remove_captcha" : true,
           "chooseNextColor" : true,
           "chooseNextSize": true,
-          "multiCart":true
+          "multiCart":true,
+          "checkoutTimer":5000
 
      },
      "items":{
