@@ -72,11 +72,11 @@ function timedStart(date, autostart){
             var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            process.stdout.write(days + "d " + hours + "h "
+            process.stdout.write("Time Left: " + days + "d " + hours + "h "
             + minutes + "m " + seconds + "s \r");
             if (distance <= 0) {
                 clearInterval(x);
-                console.log("starting now...");
+                console.log("starting now...".green);
                 //start main here
                 main();
             }

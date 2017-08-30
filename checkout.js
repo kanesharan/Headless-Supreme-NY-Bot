@@ -9,6 +9,7 @@ var token = require('./main.js');
 const debug = true;
 const reset = "\x1b[0m";
 var querystring = require('querystring');
+var fs = require('fs');
 
 module.exports = {
 	checkout: function(token,color,accountInfo,itemInfo,productName, id, fn){
@@ -93,6 +94,14 @@ function realCheckout(color, session, selectedCaptchaToken, cookie, accountInfo)
         } else {
             console.log(color + "[!] Sucessfully Checkout!!!!!" + reset);
             console.log(body);
+            fs.writeFile("checkoutOut.txt", JSON.stringify(response), function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+
+                console.log("The file was saved!");
+            }); 
+
         }
     });
 
