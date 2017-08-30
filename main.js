@@ -16,8 +16,9 @@ const parse = require('url-parse');
 const colors = require('colors');
 const moment = require('moment');
 var fs = require('fs');
-const config = require('./config');
+const config = require('./config.js');
 var server = require('./server.js');
+const userConfig = require('./config.json');
 
 
 function main(){
@@ -27,13 +28,21 @@ function main(){
 			var color = getColor(i);
 			var found = tools.getOneProduct(stockData,payloads[payKey]["items"]);
 			if(found[0] !== -1){
-				checkout.checkout(server.getAToken(),color,payloads[payKey]["account"],payloads[payKey]["items"],found[1], found[0], function(data){
+				var aToken = server.getAToken();
+				checkout.checkout(aToken['token'],color,payloads[payKey]["account"],payloads[payKey]["items"],found[1], found[0], function(data){
 
 				});
 			}
 			i++;
 		}
 	});
+
+}
+function tempMain(){
+	for(var payKey in payloads){
+		var tempToken = server.getAToken();
+		console.log("Token: ", tempToken['token']);
+	}
 }
 function getColor(i){
 	var color = ["\x1b[31m","\x1b[32m","\x1b[33m","\x1b[34m","\x1b[35m","\x1b[36m","\x1b[37m"];
@@ -50,9 +59,39 @@ function findTimeLeft(){
 	now.setTimezone("EST");
 	console.log(now.toString());
 }
+function timedStart(date, autostart){
 
-//server.startServer();
-main();
+    if(autostart){
+        var countDownDate = new Date(date).getTime();
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countDownDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            process.stdout.write(days + "d " + hours + "h "
+            + minutes + "m " + seconds + "s \r");
+            if (distance <= 0) {
+                clearInterval(x);
+                console.log("starting now...");
+                //start main here
+                main();
+            }
+        }, 1000);
+    }else{
+     	console.log("starting now...No autostart");
+     	//start main here
+     	main();
+    }
+
+}
+server.startServer();
+timedStart(userConfig['startBot']['startTime'], userConfig['startBot']['autoStart']);
+
+//main();
 //findTimeLeft();
 
 

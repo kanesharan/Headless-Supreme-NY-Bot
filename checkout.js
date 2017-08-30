@@ -8,6 +8,7 @@ var token = require('./main.js');
 
 const debug = true;
 const reset = "\x1b[0m";
+var querystring = require('querystring');
 
 module.exports = {
 	checkout: function(token,color,accountInfo,itemInfo,productName, id, fn){
@@ -19,9 +20,9 @@ module.exports = {
             var out = getStyle(body,itemInfo,color);
             console.log("NEW: " + out.toString());
             if( out[0] !== -1 && out[1] !== -1){
-                payload = {"style": out[0], "size": out[1], "qty": 1};
+                payload = {"st": out[0], "s": out[1], "qty": 1};
                 atc(atcURL,payload, function(session){
-                    console.log();
+                    console.log(session.headers);
                     console.log("Session is maintained....");
                     setTimeout(function(){
                         realCheckout(color,session['set-cookie'], token, out[1], accountInfo );
@@ -30,7 +31,7 @@ module.exports = {
             }
 
         });
-        
+        //http://www.supremenewyork.com/checkout/dyold3rx5tn7izhqe/status.json
 
 		console.log(color + "------------------------------------" + reset);
         fn(id);
@@ -61,12 +62,12 @@ function realCheckout(color, session, selectedCaptchaToken, cookie, accountInfo)
         "g-recaptcha-response":     selectedCaptchaToken, 
         "is_from_ios_native":       "1"
     };
-    var contentLength = parseInt(JSON.stringify(checkoutPayload).length);
+    var formData = querystring.stringify(checkoutPayload);
+    var contentLength = formData.length;
     var options = {
         url: 'https://www.supremenewyork.com/checkout.json',
         method: 'POST',
-        json: true,
-        body: JSON.stringify(checkoutPayload),
+        body: formData,
         headers: {
             'Accept':            'application/json',
             'Accept-Encoding':   'gzip, deflate, br',
@@ -96,6 +97,8 @@ function realCheckout(color, session, selectedCaptchaToken, cookie, accountInfo)
     });
 
 }
+
+
 function getStyle(body,itemInfo,color){
     var colorID;
     var sizeID;
@@ -177,25 +180,26 @@ function getItemData(dataURL, callback){
     });
 }
 function atc(atcUrl,atcPayload, fn){
-    var cookieJar;
+    var formData = querystring.stringify(atcPayload);
+    var contentLength = formData.length;
+
 	var options = {
         url: atcUrl,
         method: 'POST',
-        json: true,
-        body: JSON.stringify(atcPayload),
+        body: formData,
         headers: {
-            'Host':              'www.supremenewyork.com',
             'Accept':            'application/json',
-            'Proxy-Connection':  'keep-alive',
-            'X-Requested-With':  'XMLHttpRequest',
             'Accept-Encoding':   'gzip, deflate',
-            'Accept-Language':   'en-us',
-            'Content-Type':      'application/x-www-form-urlencoded',
-            'Origin':            'http://www.supremenewyork.com',
+            'Accept-Language':   'en-US,en;q=0.8',
             'Connection':        'keep-alive',
-            'User-Agent':        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34',
+            'Content-Length':     contentLength,
+            'Content-Type':      'application/x-www-form-urlencoded',
+            'Host':              'www.supremenewyork.com',
+            'Origin':            'http://www.supremenewyork.com',
             'Referer':           'http://www.supremenewyork.com/mobile',
-
+            'User-Agent':        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34',
+            'X-Requested-With':  'XMLHttpRequest'
+            
         }
 
     };
@@ -211,9 +215,9 @@ function atc(atcUrl,atcPayload, fn){
         }
     });
 }
-function byteCount(s) {
-    return encodeURI(s).split(/%..|./).length - 1;
-}
+
+
+
 
 
 

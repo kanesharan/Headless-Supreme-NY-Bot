@@ -38,8 +38,8 @@
           "sizes":[1, 2, -1]
      },
      "startBot":{
-          "autoStart":false,
-          "startTime:":"June 14, 2017 16:46:00"
+          "autoStart":true,
+          "startTime":"August 30, 2017 13:08:30"
      }
 
 }
