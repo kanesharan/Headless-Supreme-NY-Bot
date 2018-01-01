@@ -6,7 +6,6 @@ const time = require('time');
 
 const calls = require('./jsonCalls.js');
 const tools = require('./tools.js');
-//const demoStock = require('./newStockList.json');
 const checkout = require('./checkout.js');
 const express = require('express');
 const bodyParser = require('body-parser');

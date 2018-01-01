@@ -1,18 +1,18 @@
 {
-  "name": "electron-supreme-bot",
+  "name": "headless-supreme-bot",
   "version": "1.0.0",
-  "description": "An Electron Supreme Bot",
-  "main": "supremeBot.js",
+  "description": "An Headless Supreme Bot",
+  "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/ncover21/Supreme-NY-Bot",
+  "repository": "https://github.com/ncover21/Headless-Supreme-NY-Bot",
   "keywords": [
-    "Electron",
+    "Mobile",
     "Supreme",
     "ATC"
   ],
-  "author": "Noah",
+  "author": "Noah C",
   "license": "ISC",
   "dependencies": {
     "async": "^2.5.0",
